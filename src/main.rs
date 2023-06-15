@@ -1,7 +1,7 @@
 
 use macroquad::prelude::*;
 
-#[macroquad::main("mq-wbg-template")]
+#[macroquad::main("mq-shape-draw")]
 async fn main() {
     // debugging
     // std::env::set_var("RUST_BACKTRACE", "1");
