@@ -1,6 +1,10 @@
 
 use macroquad::prelude::*;
 
+mod draw_path;
+mod point;
+mod usdfs;
+
 #[macroquad::main("mq-shape-draw")]
 async fn main() {
     // debugging
@@ -8,18 +12,18 @@ async fn main() {
 
     loop {
         // ui
-        egui_macroquad::ui(|egui_ctx| {
-            egui::Window::new("Hello")
-                .show(egui_ctx, |ui| {
-                    ui.label("World!");
-                }
-            );
-        });
+        // egui_macroquad::ui(|egui_ctx| {
+        //     egui::Window::new("Hello")
+        //         .show(egui_ctx, |ui| {
+        //             ui.label("World!");
+        //         }
+        //     );
+        // });
 
         // rendering
         clear_background(BLACK);
 
-        egui_macroquad::draw();
+        // egui_macroquad::draw();
         next_frame().await
     }
 }

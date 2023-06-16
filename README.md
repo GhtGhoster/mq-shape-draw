@@ -1,7 +1,7 @@
 # Test demo for detection of drawn shapes
 
-This repo serves as a test demo for detecting drawn shapes via
-[SDFs](https://en.wikipedia.org/wiki/Signed_distance_function).
+This repo serves as a test demo for detecting drawn shapes via unsinged
+distance functions.
 
 ## Instructions and dependencies:
 
@@ -51,6 +51,8 @@ file in your browser so that the required resources load properly.)
 - https://gist.github.com/tgolsson/d78f7887a8542f3fd6f125070e5e22d6
 - https://gist.github.com/nobbele/0d932a993786ed081632254fb6b01e25
 - https://gist.github.com/olefasting/15ae263da4cf1ba308ce55c15c9b221b
+- https://iquilezles.org/articles/distfunctions2d/
+- https://stackoverflow.com/questions/12234574/calculating-if-an-angle-is-between-two-angles
 
 ## License
 
