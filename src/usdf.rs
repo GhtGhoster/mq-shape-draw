@@ -17,10 +17,10 @@ pub trait USDF {
 
 // a.k.a Circular arc
 pub struct CircleSegment {
-    center: PathPoint,
-    radius: f64,
-    facing_angle: f64,
-    angle_spread: f64,
+    pub center: PathPoint,
+    pub radius: f64,
+    pub facing_angle: f64,
+    pub angle_spread: f64,
 }
 
 impl USDF for CircleSegment {
@@ -47,8 +47,8 @@ impl USDF for CircleSegment {
 }
 
 pub struct LineSegment {
-    start_point: PathPoint,
-    end_point: PathPoint,
+    pub start_point: PathPoint,
+    pub end_point: PathPoint,
 }
 
 impl USDF for LineSegment {

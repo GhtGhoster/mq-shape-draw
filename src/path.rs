@@ -4,9 +4,9 @@ use std::collections::HashSet;
 use crate::point::PathPoint;
 
 pub struct DrawPath {
-    points: HashSet<PathPoint>,
-    min: Option<PathPoint>,
-    max: Option<PathPoint>,
+    pub points: HashSet<PathPoint>,
+    pub min: Option<PathPoint>,
+    pub max: Option<PathPoint>,
 }
 
 impl DrawPath {

@@ -1,6 +1,8 @@
 
 use std::{ops::{Add, Sub, SubAssign, Mul, MulAssign, DivAssign}, hash::Hash, f64::consts::TAU};
 
+use macroquad::prelude::*;
+
 // very specific implementation of point ignoring NaN dangers and unorthodox Div impl
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct PathPoint {
@@ -9,6 +11,16 @@ pub struct PathPoint {
 }
 
 impl PathPoint {
+    pub fn from_mouse_pos() -> Self {
+        let (mut x, mut y) = mouse_position();
+        x /= screen_width();
+        y /= screen_height();
+        Self {
+            x: x as f64,
+            y: y as f64,
+        }
+    }
+
     pub fn len(&self) -> f64 {
         (self.x.powi(2) + self.y.powi(2)).sqrt()
     }
