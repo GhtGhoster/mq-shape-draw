@@ -1,6 +1,4 @@
 
-use std::f64::consts::PI;
-
 use macroquad::prelude::*;
 use point::PathPoint;
 use shape::Shape;
@@ -20,24 +18,40 @@ async fn main() {
     // subtractive shapes that prevent activation and are subsets of existing shapes
     // automatically generate when creating a shape
     // math is gonna be tought cuz smaller shapes will have a better score
+    // PS - maybe it's not gonna be that problematic since the drawn path is going
+    // to be scaled anyway, preventing smaller drawn shapes from matching very well
+    // some verification should probably be in place tho later down the line
+
+    // todo: keep in mind that these predefined spell shapes need to span the full
+    // domain (<0-1> as of now, maybe <-1-1> in the future), not just a part of it
 
     let mut shape: Shape = Shape::new();
-    let circle_usdf: CircleSegment = CircleSegment {
-        center: PathPoint::new(0.5, 0.5),
-        radius: 0.5,
-        facing_angle: 0.1,
-        angle_spread: PI/2.0,
-    };
-    let line_usdf: LineSegment = LineSegment {
-        start_point: PathPoint::new(0.0, 0.0),
-        end_point: PathPoint::new(1.0, 1.0),
-    };
+    let circle_usdf: CircleSegment = CircleSegment::new(
+        PathPoint::new(0.5, 0.3),
+        0.2,
+        -90f64.to_radians(),
+        145f64.to_radians(),
+    );
+    let left_line_usdf: LineSegment = LineSegment::new(
+        circle_usdf.arc_start_point,
+        PathPoint::new(0.3, 0.9),
+    );
+    let right_line_usdf: LineSegment = LineSegment::new(
+        circle_usdf.arc_end_point,
+        PathPoint::new(0.7, 0.9),
+    );
+    let bottom_line_usdf: LineSegment = LineSegment::new(
+        PathPoint::new(0.3, 0.9),
+        PathPoint::new(0.7, 0.9),
+    );
 
     // println!("{}", circle_usdf.distance(PathPoint::new(0.0, 0.0)));
     // panic!();
 
     shape.usdfs.push(Box::new(circle_usdf));
-    shape.usdfs.push(Box::new(line_usdf));
+    shape.usdfs.push(Box::new(left_line_usdf));
+    shape.usdfs.push(Box::new(right_line_usdf));
+    shape.usdfs.push(Box::new(bottom_line_usdf));
 
     loop {
         // ui
@@ -51,7 +65,6 @@ async fn main() {
 
         // rendering
         clear_background(BLACK);
-        let (mouse_x, mouse_y) = mouse_position();
 
         for x in 0..(screen_width()/8.0) as u32 {
             for y in 0..(screen_height()/8.0) as u32 {

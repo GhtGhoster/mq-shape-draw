@@ -21,6 +21,31 @@ pub struct CircleSegment {
     pub radius: f64,
     pub facing_angle: f64,
     pub angle_spread: f64,
+    pub arc_start_point: PathPoint,
+    pub arc_end_point: PathPoint,
+}
+
+impl CircleSegment {
+    pub fn new(center: PathPoint, radius: f64, facing_angle: f64, angle_spread: f64) -> Self {
+        // start point
+        let arc_start_angle = facing_angle - angle_spread;
+        let arc_start_vector = PathPoint::new(arc_start_angle.cos(), arc_start_angle.sin()) * radius;
+        let arc_start_point = center + arc_start_vector;
+
+        // end point
+        let arc_end_angle = facing_angle + angle_spread;
+        let arc_end_vector = PathPoint::new(arc_end_angle.cos(), arc_end_angle.sin()) * radius;
+        let arc_end_point = center + arc_end_vector;
+
+        Self {
+            center,
+            radius,
+            facing_angle,
+            angle_spread,
+            arc_start_point,
+            arc_end_point,
+        }
+    }
 }
 
 impl USDF for CircleSegment {
@@ -29,17 +54,9 @@ impl USDF for CircleSegment {
         let point_angle = relative_point.angle();
         let angle_diff = (self.facing_angle - point_angle + PI + TAU) % TAU - PI;
         if angle_diff > self.angle_spread {
-            let arc_start_angle = self.facing_angle - self.angle_spread;
-            let mut arc_start_vector = PathPoint{x: arc_start_angle.cos() , y: arc_start_angle.sin()};
-            arc_start_vector *= self.radius;
-            let arc_start_point = self.center + arc_start_vector;
-            (arc_start_point - point).len()
+            (self.arc_start_point - point).len()
         } else if angle_diff < -self.angle_spread {
-            let arc_end_angle = self.facing_angle + self.angle_spread;
-            let mut arc_end_vector = PathPoint{x: arc_end_angle.cos() , y: arc_end_angle.sin()};
-            arc_end_vector *= self.radius;
-            let arc_end_point = self.center + arc_end_vector;
-            (arc_end_point - point).len()
+            (self.arc_end_point - point).len()
         } else {
             (relative_point.len() - self.radius).abs()
         }
@@ -49,6 +66,15 @@ impl USDF for CircleSegment {
 pub struct LineSegment {
     pub start_point: PathPoint,
     pub end_point: PathPoint,
+}
+
+impl LineSegment {
+    pub fn new(start_point: PathPoint, end_point: PathPoint) -> Self {
+        Self {
+            start_point,
+            end_point,
+        }
+    }
 }
 
 impl USDF for LineSegment {
