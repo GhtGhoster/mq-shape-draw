@@ -28,13 +28,13 @@ impl USDF for CircleSegment {
         let relative_point = point-self.center;
         let point_angle = relative_point.angle();
         let angle_diff = (self.facing_angle - point_angle + PI + TAU) % TAU - PI;
-        if angle_diff < -self.angle_spread {
+        if angle_diff > self.angle_spread {
             let arc_start_angle = self.facing_angle - self.angle_spread;
             let mut arc_start_vector = PathPoint{x: arc_start_angle.cos() , y: arc_start_angle.sin()};
             arc_start_vector *= self.radius;
             let arc_start_point = self.center + arc_start_vector;
             (arc_start_point - point).len()
-        } else if angle_diff > self.angle_spread {
+        } else if angle_diff < -self.angle_spread {
             let arc_end_angle = self.facing_angle + self.angle_spread;
             let mut arc_end_vector = PathPoint{x: arc_end_angle.cos() , y: arc_end_angle.sin()};
             arc_end_vector *= self.radius;
@@ -53,9 +53,9 @@ pub struct LineSegment {
 
 impl USDF for LineSegment {
     fn distance(&self, point: PathPoint) -> f64 {
-        let pa = point - self.start_point;
         let ba = self.end_point - self.start_point;
-        let h = ((pa * ba) / (ba * ba)).clamp(0.0, 1.0);
+        let pa = point - self.start_point;
+        let h = (pa.dot(&ba) / ba.dot(&ba)).clamp(0.0, 1.0);
         (pa - ba*h).len()
     }
 }

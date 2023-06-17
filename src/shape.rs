@@ -13,12 +13,10 @@ impl Shape {
     }
 
     pub fn score(&self, point: PathPoint) -> f64 {
-        let mut sum: f64 = 0.0;
-        let mut count: f64 = 0.0;
+        let mut min = f64::MAX;
         for usdf in &self.usdfs {
-            sum += usdf.distance(point);
-            count += 1.0;
+            min = usdf.distance(point).sqrt().min(min);
         }
-        sum / count
+        min
     }
 }

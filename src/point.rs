@@ -11,14 +11,25 @@ pub struct PathPoint {
 }
 
 impl PathPoint {
-    pub fn from_mouse_pos() -> Self {
-        let (mut x, mut y) = mouse_position();
-        x /= screen_width();
-        y /= screen_height();
+    pub fn new(x: f64, y: f64) -> Self {
+        Self {
+            x,
+            y,
+        }
+    }
+
+    pub fn from_screenspace(x: f32, y: f32) -> Self {
+        let x = x / screen_width();
+        let y = y / screen_height();
         Self {
             x: x as f64,
             y: y as f64,
         }
+    }
+
+    pub fn from_mouse_pos() -> Self {
+        let (x, y) = mouse_position();
+        Self::from_screenspace(x, y)
     }
 
     pub fn len(&self) -> f64 {
@@ -27,6 +38,14 @@ impl PathPoint {
 
     pub fn angle(&self) -> f64 {
         f64::atan2(self.y, self.x).rem_euclid(TAU)
+    }
+
+    pub fn cross(&self, other: &Self) -> f64 {
+        (self.x * other.y) - (self.y * other.x)
+    }
+
+    pub fn dot(&self, other: &Self) -> f64 {
+        (self.x * other.x) + (self.y * other.y)
     }
 }
 
@@ -67,15 +86,6 @@ impl Mul<f64> for PathPoint {
             x: self.x * other,
             y: self.y * other,
         }
-    }
-}
-
-// dot product
-impl Mul for PathPoint {
-    type Output = f64;
-
-    fn mul(self, other: Self) -> f64 {
-        (self.x * other.x) + (self.y + other.y)
     }
 }
 
