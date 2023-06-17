@@ -47,6 +47,7 @@ impl DrawPath {
     }
 
     // scale down to 0..=1 f64 range for use in USDFs
+    // todo: transfer to the point fn lerp_to_domain
     pub fn scaled(&mut self) -> Option<HashSet<PathPoint>> {
         if let Some(min) = self.min {
             if let Some(max) = self.max {

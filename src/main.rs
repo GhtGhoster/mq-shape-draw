@@ -2,7 +2,6 @@
 use macroquad::prelude::*;
 use point::PathPoint;
 use shape::Shape;
-use usdf::{CircleSegment, LineSegment};
 
 mod path;
 mod point;
@@ -24,34 +23,11 @@ async fn main() {
 
     // todo: keep in mind that these predefined spell shapes need to span the full
     // domain (<0-1> as of now, maybe <-1-1> in the future), not just a part of it
+    // this is going to pose problems as there is no elipsoid USDF yet
+    // (for later use in circular shapes spread to the whole domain)
+    // maybe this can be fixed by adding a min/max x/y property to USDF?
 
-    let mut shape: Shape = Shape::new();
-    let circle_usdf: CircleSegment = CircleSegment::new(
-        PathPoint::new(0.5, 0.3),
-        0.2,
-        -90f64.to_radians(),
-        145f64.to_radians(),
-    );
-    let left_line_usdf: LineSegment = LineSegment::new(
-        circle_usdf.arc_start_point,
-        PathPoint::new(0.3, 0.9),
-    );
-    let right_line_usdf: LineSegment = LineSegment::new(
-        circle_usdf.arc_end_point,
-        PathPoint::new(0.7, 0.9),
-    );
-    let bottom_line_usdf: LineSegment = LineSegment::new(
-        PathPoint::new(0.3, 0.9),
-        PathPoint::new(0.7, 0.9),
-    );
-
-    // println!("{}", circle_usdf.distance(PathPoint::new(0.0, 0.0)));
-    // panic!();
-
-    shape.usdfs.push(Box::new(circle_usdf));
-    shape.usdfs.push(Box::new(left_line_usdf));
-    shape.usdfs.push(Box::new(right_line_usdf));
-    shape.usdfs.push(Box::new(bottom_line_usdf));
+    let shape: Shape = Shape::shape_lock();
 
     loop {
         // ui
@@ -72,10 +48,6 @@ async fn main() {
                 let cell_point = PathPoint::from_screenspace(x*8.0+4.0, y*8.0+4.0);
                 let score = (shape.score(cell_point) * 255.0) as u8;
                 draw_rectangle(x*8.0, y*8.0, 8.0, 8.0, Color::from_rgba(score, score, score, 255));
-
-                // if (x..x+8.0).contains(&mouse_x) && (y..y+8.0).contains(&mouse_y) {
-
-                // }
             }
         }
 
