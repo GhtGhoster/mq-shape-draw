@@ -34,11 +34,11 @@ impl Shape {
             145f64.to_radians(),
         );
         let left_line_usdf: LineSegment = LineSegment::new(
-            circle_usdf.arc_start_point,
+            circle_usdf.start_point,
             PathPoint::new(0.3, 0.9),
         );
         let right_line_usdf: LineSegment = LineSegment::new(
-            circle_usdf.arc_end_point,
+            circle_usdf.end_point,
             PathPoint::new(0.7, 0.9),
         );
         let bottom_line_usdf: LineSegment = LineSegment::new(
@@ -59,10 +59,11 @@ impl Shape {
             PI,
         );
 
-        let left_top = PathPoint::from_angle((PI/2.0) + (TAU*0.4));
-        let right_top = PathPoint::from_angle((PI/2.0) + (TAU*0.6));
-        let left_bottom = PathPoint::from_angle((PI/2.0) + (TAU*0.2));
-        let right_bottom = PathPoint::from_angle((PI/2.0) - (TAU*0.2));
+        let circle_domain = (PathPoint::new(-1.0, -1.0), PathPoint::new(1.0, 1.0));
+        let left_top = PathPoint::from_angle((PI/2.0) + (TAU*0.4)).lerp_to_normalized_domain(circle_domain);
+        let right_top = PathPoint::from_angle((PI/2.0) + (TAU*0.6)).lerp_to_normalized_domain(circle_domain);
+        let left_bottom = PathPoint::from_angle((PI/2.0) + (TAU*0.2)).lerp_to_normalized_domain(circle_domain);
+        let right_bottom = PathPoint::from_angle((PI/2.0) - (TAU*0.2)).lerp_to_normalized_domain(circle_domain);
 
         let left_tall_line_usdf: LineSegment = LineSegment::new(
             PathPoint::new(0.5, 1.0),
@@ -159,5 +160,20 @@ impl Shape {
             PathPoint::new(1.0, 0.4),
         )));
         tmp
+    }
+
+    pub fn shape_circle() -> Self {
+        let circle_usdf: CircleSegment = CircleSegment::new(
+            PathPoint::new(0.5, 0.5),
+            0.5,
+            0.0,
+            PI,
+        );
+        Self {
+            usdfs: vec![
+                Box::new(circle_usdf),
+            ],
+            domain: None,
+        }
     }
 }

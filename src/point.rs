@@ -24,7 +24,7 @@ impl PathPoint {
         Self {
             x: angle.cos(),
             y: angle.sin(),
-        }.lerp_to_normalized_domain((Self::new(-1.0, -1.0), Self::new(1.0, 1.0)))
+        } // .lerp_to_normalized_domain((Self::new(-1.0, -1.0), Self::new(1.0, 1.0)))
     }
 
     pub fn from_screenspace(x: f32, y: f32) -> Self {

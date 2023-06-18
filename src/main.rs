@@ -18,7 +18,7 @@ async fn main() {
     // the matches are pretty wrong a most of the time
     // shapes like water and earth where earth just has one more line will
     // score the same when perfect water is drawn
-    // 
+    //
     // reverse score calculation of each shape point to the nearest draw path point?
     // is gonna have to be discretized and eh.. shouldn't be too hard tho hopefully.
 
@@ -26,6 +26,15 @@ async fn main() {
     // it would be nice to check path standards and implement them
     // along with distance from path (for score)
     // and even step through path (for reverse score)
+    //
+    // the best fit would seemingly be Bezier curves, todo:
+    // determine an even step-through a bezier curve - seemingly easy
+    // determine distance from point to bezier curve - iterative approach
+    // can't do circles tho
+    // rewatch video on continuity of curves/splines by that one cool math girl on yt
+    //
+    // this should probably be on top of the line and circle segments as they
+    // are simpler to operate and not as computationally intensive
 
     let shapes = vec![
         Shape::shape_water(),
@@ -34,6 +43,7 @@ async fn main() {
         Shape::shape_air(),
         Shape::shape_lock(),
         Shape::shape_devil(),
+        Shape::shape_circle(),
     ];
     let shape_names = vec![
         "water",
@@ -42,14 +52,18 @@ async fn main() {
         "air",
         "lock",
         "devil",
+        "circle",
     ];
     let mut min_index: usize = 0;
     let mut shape_scores = vec![0f64; shapes.len()];
 
-    let mut render_shape = false;
     let mut render_path = true;
     let mut render_domain = true;
-    let mut shape_index: usize = 0;
+    let mut render_shape = true;
+    let mut render_corners = true;
+    let mut render_steps = true;
+    let mut render_steps_amount: usize = 10;
+    let mut shape_index: usize = 4;
 
     let mut path = DrawPath::new();
 
@@ -84,9 +98,12 @@ async fn main() {
             );
             egui::Window::new("Render")
                 .show(egui_ctx, |ui| {
-                    ui.checkbox(&mut render_shape, "Render shape");
                     ui.checkbox(&mut render_path, "Render path");
                     ui.checkbox(&mut render_domain, "Render domain");
+                    ui.checkbox(&mut render_shape, "Render shape");
+                    ui.checkbox(&mut render_corners, "Render corners");
+                    ui.checkbox(&mut render_steps, "Render steps");
+                    ui.add(egui::Slider::new(& mut render_steps_amount, 2..=50));
                     ui.horizontal(|ui| {
                         ui.label("Current shape:");
                         ui.code(shape_names[shape_index]);
@@ -121,6 +138,34 @@ async fn main() {
                     let cell_point = PathPoint::from_screenspace(x*8.0+4.0, y*8.0+4.0);
                     let score = (shapes[shape_index].score(cell_point) * 255.0) as u8;
                     draw_rectangle(x*8.0, y*8.0, 8.0, 8.0, Color::from_rgba(score, score, score, 255));
+                }
+            }
+        }
+
+        if render_steps {
+            for usdf in &shapes[shape_index].usdfs {
+                for usdf_point in usdf.step_through(render_steps_amount) {
+                    let mut point = usdf_point.clone();
+                    if let Some(domain) = shapes[shape_index].domain {
+                        point = point.lerp_to_normalized_domain(domain);
+                    }
+                    point = point.lerp_from_normalized_domain(PathPoint::screen_domain());
+                    let PathPoint {x, y} = point;
+                    draw_circle(x as f32, y as f32, 5.0, GREEN);
+                }
+            }
+        }
+
+        if render_corners {
+            for usdf in &shapes[shape_index].usdfs {
+                for usdf_point in usdf.get_corners() {
+                    let mut point = usdf_point.clone();
+                    if let Some(domain) = shapes[shape_index].domain {
+                        point = point.lerp_to_normalized_domain(domain);
+                    }
+                    point = point.lerp_from_normalized_domain(PathPoint::screen_domain());
+                    let PathPoint {x, y} = point;
+                    draw_circle(x as f32, y as f32, 5.0, BLUE);
                 }
             }
         }
