@@ -1,72 +1,39 @@
 
-use std::collections::HashSet;
-
 use crate::{point::PathPoint, shape::Shape};
 
 pub struct DrawPath {
-    pub points: HashSet<PathPoint>,
-    pub min: Option<PathPoint>,
-    pub max: Option<PathPoint>,
+    pub points: Vec<PathPoint>,
+    pub domain: Option<(PathPoint, PathPoint)>,
 }
 
 impl DrawPath {
     pub fn new() -> Self {
         Self {
-            points: HashSet::new(),
-            min: None,
-            max: None,
+            points: vec![],
+            domain: None,
         }
     }
 
     pub fn push(&mut self, point: PathPoint) {
-        self.points.insert(point);
-
-        let PathPoint{x, y} = point;
-
-        // track lowest x and y values
-        match self.min {
-            Some(mut min) => {
-                if x < min.x {min.x = x}
-                if y < min.y {min.y = y}
-            }
-            None => {
-                self.min = Some(point);
-            }
+        if !self.points.contains(&point) {
+            self.points.push(point);
         }
 
-        // track highest x and y values
-        match self.max {
-            Some(mut max) => {
-                if x > max.x {max.x = x}
-                if y > max.y {max.y = y}
-            }
-            None => {
-                self.max = Some(point);
-            }
-        }
-    }
-
-    // scale point path down to <0-1> domain
-    pub fn scaled(&mut self) -> Option<HashSet<PathPoint>> {
-        if let Some(min) = self.min {
-            if let Some(max) = self.max {
-                let factor: PathPoint = max - min;
-                let mut scaled: HashSet<PathPoint> = HashSet::new();
-                for mut point in self.points.clone() {
-                    point -= min;
-                    point /= factor;
-                    scaled.insert(point);
-                }
-                Some(scaled)
-            } else {
-                None
-            }
+        // track lowest and highest x and y values
+        self.domain = if let Some((min, max)) = self.domain {
+            Some((point.min(&min), point.max(&max)))
         } else {
-            None
-        }
+            Some((point, point))
+        };
     }
 
-    pub fn score(&self, shapes: Vec<Shape>) -> f64 {
-        todo!()
+    pub fn score(&self, shape: &Shape) -> f64 {
+        let mut count = 0.0;
+        let mut sum = 0.0;
+        for point in &self.points {
+            count += 1.0;
+            sum += shape.score(*point);
+        }
+        sum / count
     }
 }

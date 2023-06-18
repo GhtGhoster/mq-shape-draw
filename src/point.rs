@@ -19,6 +19,7 @@ impl PathPoint {
         }
     }
 
+    #[allow(dead_code)]
     pub fn from_angle(angle: f64) -> Self {
         Self {
             x: angle.cos(),
@@ -27,17 +28,25 @@ impl PathPoint {
     }
 
     pub fn from_screenspace(x: f32, y: f32) -> Self {
-        let x = x / screen_width();
-        let y = y / screen_height();
-        Self {
-            x: x as f64,
-            y: y as f64,
-        }
+        // let x = x / screen_width();
+        // let y = y / screen_height();
+        // Self {
+        //     x: x as f64,
+        //     y: y as f64,
+        // }
+        Self::new(x as f64, y as f64).lerp_to_normalized_domain(Self::screen_domain())
     }
 
     pub fn from_mouse_pos() -> Self {
         let (x, y) = mouse_position();
         Self::from_screenspace(x, y)
+    }
+
+    pub fn screen_domain() -> (Self, Self) {
+        (
+            Self::new(0.0, 0.0),
+            Self::new(screen_width() as f64, screen_height() as f64),
+        )
     }
 
     // domain conversion
@@ -64,12 +73,27 @@ impl PathPoint {
         f64::atan2(self.y, self.x).rem_euclid(TAU)
     }
 
+    #[allow(dead_code)]
     pub fn cross(&self, other: &Self) -> f64 {
         (self.x * other.y) - (self.y * other.x)
     }
 
     pub fn dot(&self, other: &Self) -> f64 {
         (self.x * other.x) + (self.y * other.y)
+    }
+
+    pub fn min(&self, other: &Self) -> Self {
+        Self {
+            x: self.x.min(other.x),
+            y: self.y.min(other.y),
+        }
+    }
+
+    pub fn max(&self, other: &Self) -> Self {
+        Self {
+            x: self.x.max(other.x),
+            y: self.y.max(other.y),
+        }
     }
 }
 

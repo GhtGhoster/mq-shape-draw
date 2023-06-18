@@ -17,6 +17,7 @@ impl Shape {
         };
         let mut min = f64::MAX;
         for usdf in &self.usdfs {
+            // todo: choose a proper smoothing function (sqrt works pretty well so far)
             min = usdf.distance(actual_point).sqrt().min(min);
         }
         min
