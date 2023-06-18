@@ -27,17 +27,49 @@ async fn main() {
     // (for later use in circular shapes spread to the whole domain)
     // maybe this can be fixed by adding a min/max x/y property to USDF?
 
-    let shape: Shape = Shape::shape_lock();
+    let shapes = vec![
+        Shape::shape_water(),
+        Shape::shape_fire(),
+        Shape::shape_earth(),
+        Shape::shape_air(),
+        Shape::shape_lock(),
+        Shape::shape_devil(),
+    ];
+    let shape_names = vec![
+        "water",
+        "fire",
+        "earth",
+        "air",
+        "lock",
+        "devil",
+    ];
+    let mut shape_index: usize = 0;
 
     loop {
+        let mouse_pathpoint = PathPoint::from_mouse_pos();
+
         // ui
-        // egui_macroquad::ui(|egui_ctx| {
-        //     egui::Window::new("Hello")
-        //         .show(egui_ctx, |ui| {
-        //             ui.label("World!");
-        //         }
-        //     );
-        // });
+        egui_macroquad::ui(|egui_ctx| {
+            egui::Window::new("Shape draw demo")
+                .show(egui_ctx, |ui| {
+                    ui.label(format!("FPS: {}", get_fps()));
+                    ui.label(format!("MousePos: {}", mouse_pathpoint));
+                    ui.label(format!("Score: {:.3}", shapes[shape_index].score(mouse_pathpoint)));
+                    ui.horizontal(|ui| {
+                        ui.label("Current shape:");
+                        ui.code(shape_names[shape_index]);
+                    });
+                    ui.horizontal(|ui| {
+                        if ui.button("Prev").clicked() {
+                            shape_index = (shape_index - 1).rem_euclid(shapes.len());
+                        }
+                        if ui.button("Next").clicked() {
+                            shape_index = (shape_index + 1).rem_euclid(shapes.len());
+                        }
+                    });
+                }
+            );
+        });
 
         // rendering
         clear_background(BLACK);
@@ -46,18 +78,11 @@ async fn main() {
             for y in 0..(screen_height()/8.0) as u32 {
                 let (x, y): (f32, f32) = (x as f32, y as f32);
                 let cell_point = PathPoint::from_screenspace(x*8.0+4.0, y*8.0+4.0);
-                let score = (shape.score(cell_point) * 255.0) as u8;
+                let score = (shapes[shape_index].score(cell_point) * 255.0) as u8;
                 draw_rectangle(x*8.0, y*8.0, 8.0, 8.0, Color::from_rgba(score, score, score, 255));
             }
         }
-
-        // draw_line(0.3*screen_width(), 0.3*screen_height(), 0.7*screen_width(), 0.7*screen_height(), 1.0, RED);
-        let mouse_pathpoint = PathPoint::from_mouse_pos();
-        draw_text(format!("FPS: {:?}", get_fps()).as_str(), 0.0, 20.0, 20.0, BLUE);
-        draw_text(format!("{:?}", mouse_pathpoint).as_str(), 0.0, 40.0, 20.0, BLUE);
-        draw_text(format!("Score: {:?}", shape.score(mouse_pathpoint)).as_str(), 0.0, 60.0, 20.0, BLUE);
-
-        // egui_macroquad::draw();
+        egui_macroquad::draw();
         next_frame().await
     }
 }

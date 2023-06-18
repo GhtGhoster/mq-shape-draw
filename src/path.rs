@@ -1,7 +1,7 @@
 
 use std::collections::HashSet;
 
-use crate::point::PathPoint;
+use crate::{point::PathPoint, shape::Shape};
 
 pub struct DrawPath {
     pub points: HashSet<PathPoint>,
@@ -46,8 +46,7 @@ impl DrawPath {
         }
     }
 
-    // scale down to 0..=1 f64 range for use in USDFs
-    // todo: transfer to the point fn lerp_to_domain
+    // scale point path down to <0-1> domain
     pub fn scaled(&mut self) -> Option<HashSet<PathPoint>> {
         if let Some(min) = self.min {
             if let Some(max) = self.max {
@@ -67,7 +66,7 @@ impl DrawPath {
         }
     }
 
-    pub fn score(&self) -> f64 {
+    pub fn score(&self, shapes: Vec<Shape>) -> f64 {
         todo!()
     }
 }

@@ -1,5 +1,5 @@
 
-use std::{ops::{Add, Sub, SubAssign, Mul, MulAssign, DivAssign}, hash::Hash, f64::consts::TAU};
+use std::{ops::{Add, Sub, SubAssign, Mul, MulAssign, DivAssign, Div}, hash::Hash, f64::consts::TAU, fmt::Display};
 
 use macroquad::prelude::*;
 
@@ -11,11 +11,19 @@ pub struct PathPoint {
 }
 
 impl PathPoint {
+    // constructors
     pub fn new(x: f64, y: f64) -> Self {
         Self {
             x,
             y,
         }
+    }
+
+    pub fn from_angle(angle: f64) -> Self {
+        Self {
+            x: angle.cos(),
+            y: angle.sin(),
+        }.lerp_to_normalized_domain((Self::new(-1.0, -1.0), Self::new(1.0, 1.0)))
     }
 
     pub fn from_screenspace(x: f32, y: f32) -> Self {
@@ -32,6 +40,22 @@ impl PathPoint {
         Self::from_screenspace(x, y)
     }
 
+    // domain conversion
+    // converts from <min-max> domain to <0-1>
+    pub fn lerp_to_normalized_domain(self, (min, max): (Self, Self)) -> Self {
+        let old_domain = max - min;
+        let point = self - min;
+        point / old_domain
+    }
+
+    // converts from <0-1> domain to <min-max>
+    pub fn lerp_from_normalized_domain(self, (min, max): (Self, Self)) -> Self {
+        let new_domain = max - min;
+        let point = self * new_domain;
+        point + min
+    }
+
+    // utils
     pub fn len(&self) -> f64 {
         (self.x.powi(2) + self.y.powi(2)).sqrt()
     }
@@ -46,6 +70,12 @@ impl PathPoint {
 
     pub fn dot(&self, other: &Self) -> f64 {
         (self.x * other.x) + (self.y * other.y)
+    }
+}
+
+impl Display for PathPoint {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "[{:.2}, {:.2}]", self.x, self.y)
     }
 }
 
@@ -89,10 +119,32 @@ impl Mul<f64> for PathPoint {
     }
 }
 
+impl Mul for PathPoint {
+    type Output = Self;
+ 
+    fn mul(self, other: Self) -> Self {
+        Self {
+            x: self.x * other.x,
+            y: self.y * other.y,
+        }
+    }
+}
+
 impl MulAssign<f64> for PathPoint {
     fn mul_assign(&mut self, other: f64) {
         self.x *= other;
         self.y *= other;
+    }
+}
+
+impl Div for PathPoint {
+    type Output = Self;
+
+    fn div(self, other: Self) -> Self {
+        Self {
+            x: self.x / other.x,
+            y: self.y / other.y,
+        }
     }
 }
 
