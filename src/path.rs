@@ -35,5 +35,25 @@ impl DrawPath {
             sum += shape.score(*point);
         }
         sum / count
+        
+    }
+
+    pub fn reverse_score(&self, shape: &Shape) -> f64 {
+        let mut count = 0.0;
+        let mut sum = 0.0;
+        for shape_point in shape.step_through(10) {
+            let mut min = f64::MAX;
+            for point in &self.points {
+                // todo: choose a proper smoothing function (sqrt works pretty well so far)
+                min = min.min((shape_point - *point).len().sqrt());
+            }
+            count += 1.0;
+            sum += min;
+        }
+        sum / count
+    }
+
+    pub fn full_score(&self, shape: &Shape) -> f64 {
+        self.score(shape) + self.reverse_score(shape)
     }
 }

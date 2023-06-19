@@ -22,6 +22,23 @@ impl Shape {
         }
         min
     }
+
+    pub fn step_through(&self, steps: usize) -> Vec<PathPoint> {
+        let mut ret = vec![];
+        for usdf in &self.usdfs {
+            for point in usdf.step_through(steps) {
+                if !ret.contains(&point) {
+                    ret.push(point);
+                }
+            }
+            for point in usdf.get_corners() {
+                if !ret.contains(&point) {
+                    ret.push(point);
+                }
+            }
+        }
+        ret
+    }
 }
 
 // shape generation functions

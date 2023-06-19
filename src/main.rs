@@ -13,28 +13,19 @@ mod shape;
 async fn main() {
     // debugging
     // std::env::set_var("RUST_BACKTRACE", "1");
+    
+    // todo: this still sucks at detecting shapes proper, even with reverse score..
+    // maybe a smoothing function will help?
+    // also circle always seems to have abnormally high score,
+    // investigate for implementation errors?
 
-    // todo: don't match shapes with a lot of black space left out somehow?
-    // the matches are pretty wrong a most of the time
-    // shapes like water and earth where earth just has one more line will
-    // score the same when perfect water is drawn
-    //
-    // reverse score calculation of each shape point to the nearest draw path point?
-    // is gonna have to be discretized and eh.. shouldn't be too hard tho hopefully.
-
-    // todo: for something final as a result of this demo
-    // it would be nice to check path standards and implement them
-    // along with distance from path (for score)
-    // and even step through path (for reverse score)
-    //
-    // the best fit would seemingly be Bezier curves, todo:
+    // todo: Bezier curves
     // determine an even step-through a bezier curve - seemingly easy
     // determine distance from point to bezier curve - iterative approach
-    // can't do circles tho
-    // rewatch video on continuity of curves/splines by that one cool math girl on yt
-    //
-    // this should probably be on top of the line and circle segments as they
+    // this should be on top of the line and circle segments as they
     // are simpler to operate and not as computationally intensive
+
+    // todo: make egui consume mouse (and keyboard?) inputs (and maybe add to template)
 
     let shapes = vec![
         Shape::shape_water(),
@@ -56,6 +47,7 @@ async fn main() {
     ];
     let mut min_index: usize = 0;
     let mut shape_scores = vec![0f64; shapes.len()];
+    let mut shape_index: usize = 4;
 
     let mut render_path = true;
     let mut render_domain = true;
@@ -63,7 +55,10 @@ async fn main() {
     let mut render_corners = true;
     let mut render_steps = true;
     let mut render_steps_amount: usize = 10;
-    let mut shape_index: usize = 4;
+
+    let mut window_info = false;
+    let mut window_render = false;
+    let mut window_score = false;
 
     let mut path = DrawPath::new();
 
@@ -75,7 +70,7 @@ async fn main() {
         if is_mouse_button_pressed(MouseButton::Right) {
             let mut min = f64::MAX;
             for i in 0..shapes.len() {
-                shape_scores[i] = path.score(&shapes[i]);
+                shape_scores[i] = path.full_score(&shapes[i]);
                 if shape_scores[i] < min {
                     min_index = i;
                     min = shape_scores[i]
@@ -86,7 +81,15 @@ async fn main() {
 
         // ui
         egui_macroquad::ui(|egui_ctx| {
+            egui::Window::new("Shape draw demo")
+                .show(egui_ctx, |ui| {
+                    ui.checkbox(&mut window_info, "Info");
+                    ui.checkbox(&mut window_render, "Render");
+                    ui.checkbox(&mut window_score, "Score");
+                }
+            );
             egui::Window::new("Info")
+                .open(&mut window_info)
                 .show(egui_ctx, |ui| {
                     ui.label("Left click to draw");
                     ui.label("Right click to score");
@@ -97,6 +100,7 @@ async fn main() {
                 }
             );
             egui::Window::new("Render")
+                .open(&mut window_render)
                 .show(egui_ctx, |ui| {
                     ui.checkbox(&mut render_path, "Render path");
                     ui.checkbox(&mut render_domain, "Render domain");
@@ -119,6 +123,7 @@ async fn main() {
                 }
             );
             egui::Window::new("Score")
+                .open(&mut window_score)
                 .show(egui_ctx, |ui| {
                     ui.label(format!("Best match: {} ({:.3})", shape_names[min_index], shape_scores[min_index]));
                     for i in 0..shapes.len() {
