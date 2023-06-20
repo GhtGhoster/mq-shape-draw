@@ -3,6 +3,78 @@
 This repo serves as a test demo for detecting drawn shapes via unsinged
 distance functions.
 
+### Progress
+
+All of the iterations on this approach were tested with no function applied
+to the distance score and with a sqrt() smoothing function applied.
+They were tested with DrawPaths that were drawn in a continuous manner by
+holding down the mouse button continuously as well as clicking each point
+into the DrawPath individually.
+
+![Screenshot 1](Screenshot_1.png)
+
+When left mouse button is held down, each point the mouse passes through
+is added to the DrawPath object. Red line on the image.
+
+Shapes are defined as a vector of USDFs, a fundamental building unit.
+USDF can either be a circular arc (`CircleSegment` in code) or a line segment
+(`LineSegment` in code). USDFs are an unsigned distance function that takes
+in a point and returns the distance of this point to the closest part of the
+USDF.
+
+Shapes give a score to a point by determining the distance of the point
+from each of the USDFs and returning the least of those values.
+Grayscale image represents this by sampling points on the plane and
+determining their score.
+
+DrawPaths give a score to a shape by averaging the scores of all the points
+the DrawPath object comprises of.
+Scores for all predefined shapes are calculated and the shape with the
+lowest score is chosen as the detected shape.
+This is shown in the score window on the image.
+
+Shapes that were built on other shapes would score the same as the shapes
+they were built on, so a reverse score calculation was put in place by stepping
+through each USDF by an even amount, determining the distance of this stepped
+USDF point (represented by green and blue dots on the image) to each point of
+the DrawPath, finding the minimum value, and averaging these values for each
+point stepped USDF point in a shape. This didn't work.
+
+### Plans to mitigate flaws:
+
+Flaw:
+- The detected shape rarely matches with what is drawn
+- There is not way to detect whether no shape has matched
+Proposed solution:
+- Introduce a variable smoothing function.
+  This could allow for more leniency when drawing shapes while still requiring
+  the basic shape to be detected. It could also allow to set a score threshold
+  a shape would have to be under in order to "be detected".
+- The effects of this on the reverse scoring function have not been considered yet.
+- Restructure the code to support this change.
+
+
+Flaw:
+- Not all shapes and curves can be represented by circle and line segments
+Proposed solution:
+- Bezier curves could provide a solution to this but are computationally expensive
+- Determine an even step-through a Bezier curve - seemingly easy
+- Determine distance from point to bezier curve - iterative approach - expensive
+
+
+Flaw:
+- Inputs to egui are still registered by macroquad
+Proposed solution
+- Prevent macroquad from interacting when egui consumes mouse (or keyboard) inputs
+- Implement this for all future mq-wbg-template projects
+- https://github.com/emilk/egui/discussions/495
+
+
+Flaw:
+- Circle shape always seems to have abnormally high score.
+Proposed solution:
+- Investigate for implementation errors if the problem persists
+
 ## Instructions and dependencies:
 
 All scripts listed below are compatible with default Windows installation of

@@ -44,7 +44,6 @@ impl DrawPath {
         for shape_point in shape.step_through(10) {
             let mut min = f64::MAX;
             for point in &self.points {
-                // todo: choose a proper smoothing function (sqrt works pretty well so far)
                 min = min.min((shape_point - *point).len().sqrt());
             }
             count += 1.0;

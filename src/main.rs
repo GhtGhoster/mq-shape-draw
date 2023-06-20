@@ -13,19 +13,6 @@ mod shape;
 async fn main() {
     // debugging
     // std::env::set_var("RUST_BACKTRACE", "1");
-    
-    // todo: this still sucks at detecting shapes proper, even with reverse score..
-    // maybe a smoothing function will help?
-    // also circle always seems to have abnormally high score,
-    // investigate for implementation errors?
-
-    // todo: Bezier curves
-    // determine an even step-through a bezier curve - seemingly easy
-    // determine distance from point to bezier curve - iterative approach
-    // this should be on top of the line and circle segments as they
-    // are simpler to operate and not as computationally intensive
-
-    // todo: make egui consume mouse (and keyboard?) inputs (and maybe add to template)
 
     let shapes = vec![
         Shape::shape_water(),
