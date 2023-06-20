@@ -45,6 +45,7 @@ point stepped USDF point in a shape. This didn't work.
 Flaw:
 - The detected shape rarely matches with what is drawn
 - There is not way to detect whether no shape has matched
+
 Proposed solution:
 - Introduce a variable smoothing function.
   This could allow for more leniency when drawing shapes while still requiring
@@ -56,6 +57,7 @@ Proposed solution:
 
 Flaw:
 - Not all shapes and curves can be represented by circle and line segments
+
 Proposed solution:
 - Bezier curves could provide a solution to this but are computationally expensive
 - Determine an even step-through a Bezier curve - seemingly easy
@@ -64,6 +66,7 @@ Proposed solution:
 
 Flaw:
 - Inputs to egui are still registered by macroquad
+
 Proposed solution
 - Prevent macroquad from interacting when egui consumes mouse (or keyboard) inputs
 - Implement this for all future mq-wbg-template projects
@@ -72,6 +75,7 @@ Proposed solution
 
 Flaw:
 - Circle shape always seems to have abnormally high score.
+
 Proposed solution:
 - Investigate for implementation errors if the problem persists
 
